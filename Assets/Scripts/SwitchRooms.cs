@@ -1,95 +1,64 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class SwitchRooms : MonoBehaviour
 {
-    public GameObject livingRoomSphere;   
-    public GameObject cantinaSphere;      
-    public GameObject cubeSphere;         
-    public GameObject mezzanineSphere;    
+    public GameObject livingRoomSphere;
+    public GameObject cantinaSphere;
+    public GameObject cubeSphere;
+    public GameObject mezzanineSphere;
 
-    public Button cantinaHotspot;         
-    public Button livingRoomHotspot;      
-    public Button cubeHotspotFromLiving;  
-    public Button cubeHotspotFromCantina; 
-    public Button cubeHotspotFromMezzanine; 
-    public Button mezzanineHotspot;       
-
-    public Animator fadeAnimator;         
-
-    private GameObject currentSphere;     
+    public ScreenFader fader;
 
     void Start()
     {
-        if (livingRoomSphere == null) return;
-
-        SetActiveSphere(livingRoomSphere);
-
-        if (cantinaHotspot) cantinaHotspot.onClick.AddListener(() => StartSwitch(cantinaSphere));
-        if (livingRoomHotspot) livingRoomHotspot.onClick.AddListener(() => StartSwitch(livingRoomSphere));
-        if (cubeHotspotFromLiving) cubeHotspotFromLiving.onClick.AddListener(() => StartSwitch(cubeSphere));
-        if (cubeHotspotFromCantina) cubeHotspotFromCantina.onClick.AddListener(() => StartSwitch(cubeSphere));
-        if (cubeHotspotFromMezzanine) cubeHotspotFromMezzanine.onClick.AddListener(() => StartSwitch(cubeSphere));
-        if (mezzanineHotspot) mezzanineHotspot.onClick.AddListener(() => StartSwitch(mezzanineSphere));
-    }
-
-    
-    public void StartSwitch(GameObject targetSphere)
-    {
-        if (currentSphere != targetSphere)
+        if (livingRoomSphere == null)
         {
-            if (fadeAnimator != null)
-                StartCoroutine(SwitchWithFade(targetSphere));
-            else
-                SwitchSphere(targetSphere);
+            Debug.LogError("SwitchRooms: Assign all sphere fields in the Inspector!");
+            return;
         }
+        SetActiveSphere(livingRoomSphere);
     }
 
-    public void SwitchToCantina() => StartSwitch(cantinaSphere);
-    public void SwitchToLivingRoom() => StartSwitch(livingRoomSphere);
-    public void SwitchToCube() => StartSwitch(cubeSphere);
-    public void SwitchToMezzanine() => StartSwitch(mezzanineSphere);
+    public void ShowLivingRoom() => StartCoroutine(SwitchToLivingRoom());
+    public void ShowCantina()    => StartCoroutine(SwitchToCantina());
+    public void ShowCube()       => StartCoroutine(SwitchToCube());
+    public void ShowMezzanine()  => StartCoroutine(SwitchToMezzanine());
 
-    
-    private IEnumerator SwitchWithFade(GameObject targetSphere)
+    IEnumerator SwitchToLivingRoom()
     {
-        
-        fadeAnimator.SetTrigger("FadeOut");
-
-        
-        yield return new WaitForSeconds(1f);  
-
-        
-        SwitchSphere(targetSphere);
-
-        
-        fadeAnimator.SetTrigger("FadeIn");
-
-        
-        yield return new WaitForSeconds(1f);
+        yield return fader.FadeOut();
+        SetActiveSphere(livingRoomSphere);
+        yield return fader.FadeIn();
     }
 
-    
-    public void SwitchSphere(GameObject targetSphere)
+    IEnumerator SwitchToCantina()
     {
-        if (livingRoomSphere == null || targetSphere == null) return;
+        yield return fader.FadeOut();
+        SetActiveSphere(cantinaSphere);
+        yield return fader.FadeIn();
+    }
 
+    IEnumerator SwitchToCube()
+    {
+        yield return fader.FadeOut();
+        SetActiveSphere(cubeSphere);
+        yield return fader.FadeIn();
+    }
+
+    IEnumerator SwitchToMezzanine()
+    {
+        yield return fader.FadeOut();
+        SetActiveSphere(mezzanineSphere);
+        yield return fader.FadeIn();
+    }
+
+    void SetActiveSphere(GameObject target)
+    {
         livingRoomSphere.SetActive(false);
         cantinaSphere.SetActive(false);
         cubeSphere.SetActive(false);
         mezzanineSphere.SetActive(false);
-
-        SetActiveSphere(targetSphere);
-
-        Debug.Log(targetSphere.name + " sphere is now active");
-    }
-
-    
-    void SetActiveSphere(GameObject sphere)
-    {
-        sphere.SetActive(true);  
-        currentSphere = sphere;  
+        target.SetActive(true);
     }
 }
